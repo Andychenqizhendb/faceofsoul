@@ -92,6 +92,10 @@ async function performAnalysis() {
         // Call AI analysis
         const result = await analyzeImage(uploadedImage, currentMode);
         
+        // Store analysis context for chat
+        lastAnalysisResult = result;
+        lastAnalysisContext = `综合运势: ${result.overall}分, 事业: ${result.scores.career}分, 财运: ${result.scores.wealth}分, 感情: ${result.scores.love}分, 健康: ${result.scores.health}分。${result.career || ''} ${result.wealth || ''}`;
+        
         // Display results
         loading.classList.add('hidden');
         results.classList.remove('hidden');
@@ -389,13 +393,14 @@ const chatInput = document.getElementById('chat-input');
 const chatSend = document.getElementById('chat-send');
 
 let lastAnalysisResult = null;
+let lastAnalysisContext = '';
 
 chatSend.addEventListener('click', sendChatMessage);
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendChatMessage();
 });
 
-function sendChatMessage() {
+async function sendChatMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
     
@@ -410,12 +415,35 @@ function sendChatMessage() {
     chatMessages.appendChild(typingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
     
-    // Generate response after delay
-    setTimeout(() => {
+    try {
+        // Call AI chat API
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: message,
+                analysisContext: lastAnalysisContext,
+                lang: currentLang
+            })
+        });
+        
         typingDiv.remove();
-        const response = generateChatResponse(message);
-        addChatMessage(response, 'assistant');
-    }, 1500);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.reply) {
+                addChatMessage(data.reply, 'assistant');
+            } else {
+                addChatMessage(generateChatResponse(message), 'assistant');
+            }
+        } else {
+            addChatMessage(generateChatResponse(message), 'assistant');
+        }
+    } catch (error) {
+        console.error('Chat API error:', error);
+        typingDiv.remove();
+        addChatMessage(generateChatResponse(message), 'assistant');
+    }
 }
 
 function addChatMessage(text, sender) {
