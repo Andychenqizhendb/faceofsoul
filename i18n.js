@@ -2,7 +2,7 @@
 const translations = {
     zh: {
         title: "相由心生",
-        subtitle: "古老智慧 × 现代科技",
+        subtitle: "一面见心，一掌知命",
         face_reading: "面相分析",
         face_desc: "上传正面照，解读五官命理",
         palm_reading: "手相分析",
@@ -55,7 +55,7 @@ const translations = {
     },
     en: {
         title: "FaceOfSoul",
-        subtitle: "Ancient Wisdom × Modern Technology",
+        subtitle: "Read the Face, Know the Heart · Read the Palm, Know the Fate",
         face_reading: "Face Reading",
         face_desc: "Upload a photo to analyze facial features",
         palm_reading: "Palm Reading",

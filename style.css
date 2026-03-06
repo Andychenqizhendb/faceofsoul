@@ -1,17 +1,17 @@
-/* AI Fortune Master - Zen Temple Style */
+/* 相由心生 - 雍和宫 × 灵隐寺 风格 */
 :root {
-    --zen-charcoal: #2C3E50;
-    --zen-stone: #5D6D7E;
-    --zen-mist: #E8E4E1;
-    --zen-sand: #D4C5B9;
-    --zen-gold: #B8860B;
-    --zen-gold-soft: #DAA520;
-    --zen-cream: #FAF8F5;
-    --zen-ink: #1C2833;
-    --zen-red: #922B21;
-    --zen-wood: #6E4C3A;
-    --text-light: #FAF8F5;
-    --text-muted: #B0A090;
+    --temple-red: #8B2323;
+    --temple-red-dark: #5C1818;
+    --temple-gold: #C9A227;
+    --temple-gold-light: #E8D48B;
+    --temple-wood: #4A3728;
+    --temple-wood-light: #6B5344;
+    --incense-glow: #FFE4B5;
+    --mist-white: rgba(255, 255, 255, 0.08);
+    --paper-cream: #F5EDE0;
+    --ink-black: #2D2416;
+    --text-light: #F5EDE0;
+    --text-muted: #C4B59D;
 }
 
 * {
@@ -24,17 +24,18 @@ body {
     font-family: 'Noto Serif SC', serif;
     background: 
         linear-gradient(180deg, 
-            #1a1a1a 0%, 
-            #2C3E50 20%,
-            #34495E 50%,
-            #2C3E50 80%,
-            #1a1a1a 100%);
+            #1a1008 0%,
+            #2D1F15 15%,
+            #3D2A1E 40%,
+            #2D1F15 70%,
+            #1a1008 100%);
     min-height: 100vh;
     color: var(--text-light);
     position: relative;
+    overflow-x: hidden;
 }
 
-/* Gentle mist/fog effect */
+/* 晨雾缭绕效果 */
 body::before {
     content: '';
     position: fixed;
@@ -43,35 +44,41 @@ body::before {
     right: 0;
     bottom: 0;
     background: 
-        radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
-        radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.02) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 80%, rgba(184, 134, 11, 0.02) 0%, transparent 30%);
+        radial-gradient(ellipse at 20% 10%, rgba(255, 228, 181, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255, 228, 181, 0.04) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(201, 162, 39, 0.03) 0%, transparent 60%);
     pointer-events: none;
-    animation: mist 12s ease-in-out infinite;
+    animation: incenseGlow 10s ease-in-out infinite;
 }
 
-@keyframes mist {
-    0%, 100% { opacity: 0.6; }
+@keyframes incenseGlow {
+    0%, 100% { opacity: 0.7; }
     50% { opacity: 1; }
 }
 
-/* Subtle breathing animation for entire page */
+/* 檀香烟雾飘动 */
 body::after {
     content: '';
     position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 200%;
-    height: 200%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.1) 100%);
+    top: -50%;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: 
+        linear-gradient(180deg, 
+            transparent 0%,
+            rgba(255, 228, 181, 0.02) 20%,
+            rgba(255, 228, 181, 0.04) 40%,
+            rgba(255, 228, 181, 0.02) 60%,
+            transparent 100%);
     pointer-events: none;
-    animation: breathe 8s ease-in-out infinite;
+    animation: smokeRise 20s ease-in-out infinite;
 }
 
-@keyframes breathe {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
-    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.5; }
+@keyframes smokeRise {
+    0% { transform: translateY(100%); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: translateY(-100%); opacity: 0; }
 }
 
 .app-container {
@@ -85,10 +92,12 @@ body::after {
 
 /* Language Toggle */
 .lang-toggle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
     display: flex;
-    justify-content: flex-end;
     gap: 8px;
-    margin-bottom: 20px;
+    z-index: 100;
 }
 
 .lang-btn {
@@ -107,52 +116,77 @@ body::after {
     color: var(--bg-dark);
 }
 
-/* Header - Temple Gate Style */
+/* Header - 庙门牌匾风格 */
 .header {
     text-align: center;
-    padding: 40px 20px;
+    padding: 50px 20px 40px;
     position: relative;
-    background: linear-gradient(180deg, rgba(139, 0, 0, 0.3) 0%, transparent 100%);
-    border-bottom: 3px solid var(--gold);
-    margin-bottom: 20px;
+    background: 
+        linear-gradient(180deg, 
+            var(--temple-red-dark) 0%,
+            var(--temple-red) 50%,
+            var(--temple-red-dark) 100%);
+    border-bottom: 4px solid var(--temple-gold);
+    margin-bottom: 30px;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        inset 0 2px 10px rgba(255, 228, 181, 0.1);
 }
 
+/* 牌匾顶部装饰 */
 .header::before {
-    content: '☯';
+    content: '☸';
     position: absolute;
-    top: 10px;
+    top: 12px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 1.5rem;
-    color: var(--gold);
-    opacity: 0.6;
+    font-size: 1.3rem;
+    color: var(--temple-gold);
+    opacity: 0.8;
+    text-shadow: 0 0 10px rgba(201, 162, 39, 0.5);
+}
+
+/* 左右装饰纹 */
+.header::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--temple-gold-light), transparent);
 }
 
 .title {
-    font-size: 2.8rem;
-    color: var(--gold);
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    font-size: 3.5rem;
+    color: var(--temple-gold);
     text-shadow: 
-        0 0 10px rgba(212, 175, 55, 0.5),
-        0 2px 4px rgba(0, 0, 0, 0.8);
+        0 0 20px rgba(201, 162, 39, 0.4),
+        0 3px 6px rgba(0, 0, 0, 0.8),
+        3px 3px 0 var(--temple-red-dark);
     margin-bottom: 15px;
-    letter-spacing: 8px;
-    font-weight: 700;
+    letter-spacing: 15px;
+    font-weight: 400;
 }
 
 .subtitle {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    letter-spacing: 4px;
+    color: var(--temple-gold-light);
+    font-size: 0.9rem;
+    letter-spacing: 6px;
     position: relative;
     display: inline-block;
+    opacity: 0.9;
 }
 
 .subtitle::before,
 .subtitle::after {
-    content: '—';
-    margin: 0 15px;
-    color: var(--gold);
-    opacity: 0.5;
+    content: '◈';
+    margin: 0 12px;
+    color: var(--temple-gold);
+    opacity: 0.6;
+    font-size: 0.7rem;
 }
 
 /* Main Menu */
@@ -164,72 +198,82 @@ body::after {
     padding: 20px 0;
 }
 
-/* Temple Wooden Plaque Style Cards */
+/* 祈福牌风格卡片 */
 .menu-card {
     background: 
-        linear-gradient(135deg, #3D2317 0%, #2D1810 50%, #1a0f0a 100%);
-    border: 2px solid var(--gold);
-    border-radius: 8px;
-    padding: 35px 30px;
+        linear-gradient(180deg, 
+            var(--temple-wood-light) 0%,
+            var(--temple-wood) 5%,
+            var(--temple-wood) 95%,
+            #3A2A1E 100%);
+    border: 3px solid var(--temple-gold);
+    border-radius: 12px;
+    padding: 40px 30px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
     box-shadow: 
-        inset 0 2px 4px rgba(255, 255, 255, 0.1),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-        0 8px 20px rgba(0, 0, 0, 0.5);
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Corner decorations */
-.menu-card::before,
-.menu-card::after {
-    content: '◆';
-    position: absolute;
-    color: var(--gold);
-    font-size: 0.8rem;
-    opacity: 0.7;
-}
-
+/* 顶部挂绳装饰 */
 .menu-card::before {
-    top: 8px;
-    left: 10px;
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 30px;
+    background: 
+        radial-gradient(ellipse at 50% 100%, var(--temple-gold) 0%, transparent 70%);
+    opacity: 0.6;
 }
 
+/* 底部莲花纹 */
 .menu-card::after {
-    top: 8px;
-    right: 10px;
+    content: '❀';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--temple-gold);
+    font-size: 1rem;
+    opacity: 0.4;
 }
 
 .menu-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    border-color: var(--gold-light);
+    transform: translateY(-8px);
+    border-color: var(--temple-gold-light);
     box-shadow: 
-        inset 0 2px 4px rgba(255, 255, 255, 0.15),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.3),
-        0 15px 30px rgba(212, 175, 55, 0.2),
-        0 0 30px rgba(212, 175, 55, 0.1);
+        0 15px 40px rgba(201, 162, 39, 0.25),
+        0 0 30px rgba(255, 228, 181, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .card-icon {
     font-size: 3.5rem;
-    margin-bottom: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    margin-bottom: 20px;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
 }
 
 .menu-card h2 {
-    color: var(--gold);
-    font-size: 1.6rem;
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    color: var(--temple-gold);
+    font-size: 2rem;
     margin-bottom: 12px;
-    letter-spacing: 4px;
+    letter-spacing: 8px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 400;
 }
 
 .menu-card p {
     color: var(--text-muted);
     font-size: 0.9rem;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 /* Analysis Section */
@@ -253,10 +297,12 @@ body::after {
 }
 
 .section-title {
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
     text-align: center;
-    color: var(--gold);
-    font-size: 1.8rem;
+    color: var(--temple-gold);
+    font-size: 2.2rem;
     margin-bottom: 30px;
+    letter-spacing: 6px;
 }
 
 /* Upload Area */
@@ -402,13 +448,14 @@ body::after {
 }
 
 .result-card h3 {
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
     color: var(--temple-red);
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     margin-bottom: 20px;
     text-align: center;
     border-bottom: 2px solid var(--temple-red);
     padding-bottom: 15px;
-    letter-spacing: 4px;
+    letter-spacing: 6px;
 }
 
 .result-content {
