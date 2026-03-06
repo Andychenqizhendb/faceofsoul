@@ -46,9 +46,18 @@
             <!-- Upload Area -->
             <div class="upload-area" id="upload-area">
                 <div class="upload-box" id="upload-box">
-                    <input type="file" id="file-input" accept="image/*" capture="environment" hidden>
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <input type="file" id="camera-input" accept="image/*" capture="user" hidden>
                     <div class="upload-icon">📷</div>
                     <p data-i18n="upload_hint">点击上传或拍照</p>
+                </div>
+                <div class="upload-buttons">
+                    <button class="upload-btn camera-btn" id="btn-camera">
+                        <span>📸</span> <span data-i18n="take_photo">拍照</span>
+                    </button>
+                    <button class="upload-btn gallery-btn" id="btn-gallery">
+                        <span>🖼️</span> <span data-i18n="from_gallery">相册</span>
+                    </button>
                 </div>
                 <img id="preview-image" class="preview-image hidden" alt="Preview">
                 <button id="analyze-btn" class="analyze-btn hidden" data-i18n="analyze">开始分析</button>

@@ -172,8 +172,9 @@ body::after {
 }
 
 .subtitle {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     color: var(--temple-gold-light);
-    font-size: 0.9rem;
+    font-size: 1rem;
     letter-spacing: 6px;
     position: relative;
     display: inline-block;
@@ -329,8 +330,40 @@ body::after {
 }
 
 .upload-box:hover {
-    background: rgba(212, 175, 55, 0.1);
-    border-color: var(--gold-light);
+    background: rgba(201, 162, 39, 0.1);
+    border-color: var(--temple-gold);
+}
+
+/* Upload Buttons */
+.upload-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid var(--temple-gold);
+    background: rgba(201, 162, 39, 0.1);
+    color: var(--temple-gold);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: var(--temple-gold);
+    color: var(--temple-red-dark);
+}
+
+.upload-btn span:first-child {
+    font-size: 1.2rem;
 }
 
 .upload-icon {
