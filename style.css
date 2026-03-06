@@ -494,17 +494,20 @@ body::after {
 }
 
 .result-content {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     line-height: 2;
     font-size: 1rem;
     color: #2D1810;
 }
 
 .result-content h4 {
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
     color: var(--temple-red);
     margin: 25px 0 12px;
-    font-size: 1.15rem;
+    font-size: 1.3rem;
     border-left: 3px solid var(--temple-red);
     padding-left: 10px;
+    letter-spacing: 3px;
 }
 
 .result-content p {
@@ -559,11 +562,12 @@ body::after {
 
 .retry-btn, .share-btn {
     padding: 15px 30px;
-    border-radius: 30px;
+    border-radius: 10px;
     font-size: 1rem;
     cursor: pointer;
-    font-family: inherit;
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     transition: all 0.3s;
+    letter-spacing: 2px;
 }
 
 .retry-btn {
@@ -617,9 +621,11 @@ body::after {
 }
 
 .tip-header h3 {
-    color: var(--zen-gold);
-    font-size: 1.2rem;
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    color: var(--temple-gold);
+    font-size: 1.4rem;
     margin-bottom: 8px;
+    letter-spacing: 3px;
 }
 
 .tip-subtitle {
@@ -679,8 +685,9 @@ body::after {
 }
 
 .tip-label {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     color: var(--text-light);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
 }
 
 .tip-price {
@@ -705,10 +712,12 @@ body::after {
 }
 
 .chat-section h3 {
-    color: var(--gold);
-    font-size: 1.1rem;
+    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    color: var(--temple-gold);
+    font-size: 1.4rem;
     margin-bottom: 15px;
     text-align: center;
+    letter-spacing: 4px;
 }
 
 .chat-messages {
