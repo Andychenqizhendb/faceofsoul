@@ -731,13 +731,25 @@ body::after {
 }
 
 .chat-messages {
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
     margin-bottom: 15px;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 12px;
-    min-height: 100px;
+    min-height: 80px;
+}
+
+.chat-messages:empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-messages:empty::before {
+    content: '暂无对话';
+    color: var(--text-muted);
+    font-size: 0.85rem;
 }
 
 .chat-message {
@@ -770,6 +782,8 @@ body::after {
 .chat-input-area {
     display: flex;
     gap: 10px;
+    margin-top: 10px;
+    position: relative;
 }
 
 #chat-input {
