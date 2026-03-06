@@ -1,6 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -21,8 +19,10 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'No image provided' });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
 
     // Remove data URL prefix if present
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
@@ -33,22 +33,16 @@ module.exports = async (req, res) => {
     const prompt = isChinese 
       ? `你是一位精通中国传统面相学和手相学的相师。请分析这张${isFace ? '面部' : '手掌'}照片，给出详细的命理解读。
 
-请按以下格式回复（JSON格式）：
+请按以下JSON格式回复：
 {
-  "scores": {
-    "overall": 85,
-    "career": 80,
-    "wealth": 75,
-    "love": 90,
-    "health": 85
-  },
+  "scores": {"overall": 85, "career": 80, "wealth": 75, "love": 90, "health": 85},
   "analysis": {
-    "main": "对${isFace ? '五官' : '掌纹'}的整体分析...",
+    "main": "整体分析...",
     "features": [
-      {"name": "${isFace ? '额头' : '生命线'}", "description": "详细描述..."},
-      {"name": "${isFace ? '眉眼' : '智慧线'}", "description": "详细描述..."},
-      {"name": "${isFace ? '鼻相' : '感情线'}", "description": "详细描述..."},
-      {"name": "${isFace ? '唇相' : '事业线'}", "description": "详细描述..."}
+      {"name": "${isFace ? '额头' : '生命线'}", "description": "描述..."},
+      {"name": "${isFace ? '眉眼' : '智慧线'}", "description": "描述..."},
+      {"name": "${isFace ? '鼻相' : '感情线'}", "description": "描述..."},
+      {"name": "${isFace ? '唇相' : '事业线'}", "description": "描述..."}
     ]
   },
   "fortune": {
@@ -57,72 +51,66 @@ module.exports = async (req, res) => {
     "love": "感情运分析...",
     "health": "健康运分析..."
   },
-  "advice": ["开运建议1", "开运建议2", "开运建议3"],
-  "luckyInfo": {
-    "color": "幸运颜色",
-    "number": "幸运数字",
-    "direction": "吉利方位"
-  }
+  "advice": ["建议1", "建议2", "建议3"]
 }
 
-请确保分析专业、有深度，语言优美有古风韵味。评分在60-95之间，根据实际面相/手相特征给出。`
-      : `You are a master of Chinese traditional face reading and palm reading. Please analyze this ${isFace ? 'face' : 'palm'} photo and provide a detailed fortune reading.
+请确保分析专业有深度，语言有古风韵味。评分60-95之间。`
+      : `You are a master of Chinese face and palm reading. Analyze this ${isFace ? 'face' : 'palm'} photo.
 
-Please respond in the following JSON format:
+Reply in JSON format:
 {
-  "scores": {
-    "overall": 85,
-    "career": 80,
-    "wealth": 75,
-    "love": 90,
-    "health": 85
-  },
+  "scores": {"overall": 85, "career": 80, "wealth": 75, "love": 90, "health": 85},
   "analysis": {
-    "main": "Overall analysis of ${isFace ? 'facial features' : 'palm lines'}...",
+    "main": "Overall analysis...",
     "features": [
-      {"name": "${isFace ? 'Forehead' : 'Life Line'}", "description": "Detailed description..."},
-      {"name": "${isFace ? 'Eyes' : 'Head Line'}", "description": "Detailed description..."},
-      {"name": "${isFace ? 'Nose' : 'Heart Line'}", "description": "Detailed description..."},
-      {"name": "${isFace ? 'Lips' : 'Fate Line'}", "description": "Detailed description..."}
+      {"name": "${isFace ? 'Forehead' : 'Life Line'}", "description": "..."},
+      {"name": "${isFace ? 'Eyes' : 'Head Line'}", "description": "..."},
+      {"name": "${isFace ? 'Nose' : 'Heart Line'}", "description": "..."},
+      {"name": "${isFace ? 'Lips' : 'Fate Line'}", "description": "..."}
     ]
   },
   "fortune": {
-    "career": "Career fortune analysis...",
-    "wealth": "Wealth fortune analysis...",
-    "love": "Love fortune analysis...",
-    "health": "Health fortune analysis..."
+    "career": "Career analysis...",
+    "wealth": "Wealth analysis...",
+    "love": "Love analysis...",
+    "health": "Health analysis..."
   },
-  "advice": ["Lucky advice 1", "Lucky advice 2", "Lucky advice 3"],
-  "luckyInfo": {
-    "color": "Lucky color",
-    "number": "Lucky number",
-    "direction": "Lucky direction"
-  }
-}
+  "advice": ["Advice 1", "Advice 2", "Advice 3"]
+}`;
 
-Please ensure the analysis is professional and insightful. Scores should be between 60-95 based on actual features observed.`;
-
-    const result = await model.generateContent([
-      prompt,
+    // Call Gemini API directly
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
-        inlineData: {
-          mimeType: "image/jpeg",
-          data: base64Data
-        }
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inline_data: { mime_type: 'image/jpeg', data: base64Data } }
+            ]
+          }]
+        })
       }
-    ]);
+    );
 
-    const response = await result.response;
-    let text = response.text();
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Gemini API error:', error);
+      return res.status(500).json({ error: 'AI analysis failed' });
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     
-    // Try to extract JSON from the response
+    // Extract JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       try {
         const analysisData = JSON.parse(jsonMatch[0]);
         return res.status(200).json({ success: true, data: analysisData });
       } catch (e) {
-        // If JSON parsing fails, return raw text
         return res.status(200).json({ success: true, rawText: text });
       }
     }
@@ -130,7 +118,7 @@ Please ensure the analysis is professional and insightful. Scores should be betw
     return res.status(200).json({ success: true, rawText: text });
     
   } catch (error) {
-    console.error('Gemini API error:', error);
+    console.error('Error:', error);
     return res.status(500).json({ error: error.message || 'Analysis failed' });
   }
-};
+}
