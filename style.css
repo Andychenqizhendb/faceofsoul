@@ -21,7 +21,7 @@
 }
 
 body {
-    font-family: 'Noto Serif SC', serif;
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     background: 
         linear-gradient(180deg, 
             #1a1008 0%,
@@ -101,13 +101,14 @@ body::after {
 }
 
 .lang-btn {
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--temple-gold);
+    color: var(--temple-gold);
     padding: 6px 16px;
-    border-radius: 20px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    font-size: 0.9rem;
     transition: all 0.3s;
 }
 
@@ -272,9 +273,10 @@ body::after {
 }
 
 .menu-card p {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     color: var(--text-muted);
-    font-size: 0.9rem;
-    letter-spacing: 2px;
+    font-size: 0.95rem;
+    letter-spacing: 3px;
 }
 
 /* Analysis Section */
@@ -287,14 +289,14 @@ body::after {
 .back-btn {
     background: transparent;
     border: none;
-    color: var(--gold);
+    color: var(--temple-gold);
     font-size: 1rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 20px;
-    font-family: inherit;
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
 }
 
 .section-title {
@@ -351,7 +353,7 @@ body::after {
     background: rgba(201, 162, 39, 0.1);
     color: var(--temple-gold);
     border-radius: 8px;
-    font-family: inherit;
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -588,8 +590,10 @@ body::after {
 }
 
 .footer p {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
 }
 
 /* Tip Section */
