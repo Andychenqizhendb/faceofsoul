@@ -1,5 +1,10 @@
 /* 相由心生 - 雍和宫 × 灵隐寺 风格 */
 :root {
+    /* 字体 */
+    --font-brush: 'Ma Shan Zheng', 'Long Cang', cursive;
+    --font-body: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    
+    /* 颜色 */
     --temple-red: #8B2323;
     --temple-red-dark: #5C1818;
     --temple-gold: #C9A227;
@@ -14,6 +19,11 @@
     --text-muted: #C4B59D;
 }
 
+/* 全局字体继承 */
+*, *::before, *::after {
+    font-family: inherit;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -21,7 +31,7 @@
 }
 
 body {
-    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    font-family: var(--font-body);
     background: 
         linear-gradient(180deg, 
             #1a1008 0%,
@@ -160,7 +170,7 @@ body::after {
 }
 
 .title {
-    font-family: 'Ma Shan Zheng', 'Long Cang', cursive;
+    font-family: var(--font-brush);
     font-size: 3.5rem;
     color: var(--temple-gold);
     text-shadow: 
@@ -173,7 +183,7 @@ body::after {
 }
 
 .subtitle {
-    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    font-family: var(--font-body);
     color: var(--temple-gold-light);
     font-size: 1rem;
     letter-spacing: 6px;
