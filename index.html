@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>相由心生 | FaceOfSoul</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Language Toggle -->
+        <div class="lang-toggle">
+            <button id="lang-zh" class="lang-btn active">中文</button>
+            <button id="lang-en" class="lang-btn">EN</button>
+        </div>
+
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title" data-i18n="title">AI 相师</h1>
+            <p class="subtitle" data-i18n="subtitle">古老智慧 × 现代科技</p>
+        </header>
+
+        <!-- Main Menu -->
+        <main class="main-menu" id="main-menu">
+            <div class="menu-card" id="btn-face">
+                <div class="card-icon">👤</div>
+                <h2 data-i18n="face_reading">面相分析</h2>
+                <p data-i18n="face_desc">上传正面照，解读五官命理</p>
+            </div>
+            <div class="menu-card" id="btn-palm">
+                <div class="card-icon">🖐️</div>
+                <h2 data-i18n="palm_reading">手相分析</h2>
+                <p data-i18n="palm_desc">拍摄手掌，探索生命线索</p>
+            </div>
+        </main>
+
+        <!-- Analysis Section (Hidden by default) -->
+        <section class="analysis-section hidden" id="analysis-section">
+            <button class="back-btn" id="back-btn">
+                <span>←</span> <span data-i18n="back">返回</span>
+            </button>
+            
+            <h2 class="section-title" id="section-title" data-i18n="face_reading">面相分析</h2>
+            
+            <!-- Upload Area -->
+            <div class="upload-area" id="upload-area">
+                <div class="upload-box" id="upload-box">
+                    <input type="file" id="file-input" accept="image/*" capture="environment" hidden>
+                    <div class="upload-icon">📷</div>
+                    <p data-i18n="upload_hint">点击上传或拍照</p>
+                </div>
+                <img id="preview-image" class="preview-image hidden" alt="Preview">
+                <button id="analyze-btn" class="analyze-btn hidden" data-i18n="analyze">开始分析</button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading hidden" id="loading">
+                <div class="spinner"></div>
+                <p data-i18n="analyzing">AI 正在解读命理...</p>
+            </div>
+
+            <!-- Results -->
+            <div class="results hidden" id="results">
+                <div class="result-card">
+                    <h3 data-i18n="analysis_result">分析结果</h3>
+                    <div id="result-content" class="result-content"></div>
+                </div>
+                <button id="retry-btn" class="retry-btn" data-i18n="try_again">再测一次</button>
+                <button id="share-btn" class="share-btn" data-i18n="share">分享结果</button>
+                
+                <!-- Tip Section -->
+                <div class="tip-section">
+                    <div class="tip-header">
+                        <span class="tip-icon">🙏</span>
+                        <h3 data-i18n="tip_title">觉得准？随喜打赏</h3>
+                        <p class="tip-subtitle" data-i18n="tip_subtitle">您的支持是相师修行的动力</p>
+                    </div>
+                    <div class="tip-amounts">
+                        <button class="tip-btn" data-amount="1.99">
+                            <span class="tip-emoji">☕</span>
+                            <span class="tip-label" data-i18n="tip_coffee">请喝咖啡</span>
+                            <span class="tip-price">$1.99</span>
+                        </button>
+                        <button class="tip-btn" data-amount="4.99">
+                            <span class="tip-emoji">🍜</span>
+                            <span class="tip-label" data-i18n="tip_meal">请吃素斋</span>
+                            <span class="tip-price">$4.99</span>
+                        </button>
+                        <button class="tip-btn featured" data-amount="9.99">
+                            <span class="tip-emoji">🪷</span>
+                            <span class="tip-label" data-i18n="tip_incense">添香油钱</span>
+                            <span class="tip-price">$9.99</span>
+                        </button>
+                    </div>
+                    <p class="tip-note" data-i18n="tip_note">打赏纯属自愿，感恩您的善心 🙏</p>
+                </div>
+                
+                <!-- Chat Section -->
+                <div class="chat-section">
+                    <h3 data-i18n="ask_master">继续问相师</h3>
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" data-i18n-placeholder="chat_placeholder" placeholder="想了解更多？问我吧...">
+                        <button id="chat-send" class="chat-send-btn">→</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p data-i18n="disclaimer">仅供娱乐参考，请理性看待</p>
+        </footer>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
