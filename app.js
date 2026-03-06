@@ -106,17 +106,80 @@ async function performAnalysis() {
 }
 
 async function analyzeImage(imageData, mode) {
-    // For demo purposes, we'll generate a mock result
-    // In production, this would call your AI API endpoint
+    try {
+        // Call real AI API
+        const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: imageData,
+                type: mode,
+                lang: currentLang
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            // Format API response to match our display format
+            return formatAIResponse(result.data, mode);
+        } else if (result.rawText) {
+            // Fallback to mock if can't parse JSON
+            console.log('Raw AI response:', result.rawText);
+            return mode === 'face' ? generateFaceReading() : generatePalmReading();
+        } else {
+            throw new Error(result.error || 'Unknown error');
+        }
+    } catch (error) {
+        console.error('AI API error:', error);
+        // Fallback to mock results
+        return mode === 'face' ? generateFaceReading() : generatePalmReading();
+    }
+}
+
+function formatAIResponse(data, mode) {
+    const scores = data.scores || {
+        career: 80,
+        wealth: 75,
+        love: 85,
+        health: 80
+    };
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    const overall = data.scores?.overall || Math.floor((scores.career + scores.wealth + scores.love + scores.health) / 4);
     
-    // Generate analysis based on mode
     if (mode === 'face') {
-        return generateFaceReading();
+        return {
+            scores,
+            overall,
+            personality: data.analysis?.features?.map(f => `${f.name}：${f.description}`) || [],
+            career: data.fortune?.career || '',
+            wealth: data.fortune?.wealth || '',
+            love: data.fortune?.love || '',
+            health: data.fortune?.health || '',
+            advice: data.advice || []
+        };
     } else {
-        return generatePalmReading();
+        return {
+            scores,
+            overall,
+            lines: {
+                life: data.analysis?.features?.[0]?.description || '',
+                wisdom: data.analysis?.features?.[1]?.description || '',
+                heart: data.analysis?.features?.[2]?.description || '',
+                fate: data.analysis?.features?.[3]?.description || ''
+            },
+            career: data.fortune?.career || '',
+            wealth: data.fortune?.wealth || '',
+            love: data.fortune?.love || '',
+            health: data.fortune?.health || '',
+            advice: data.advice || []
+        };
     }
 }
 

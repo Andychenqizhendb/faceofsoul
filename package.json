@@ -1,0 +1,8 @@
+{
+  "name": "faceofsoul",
+  "version": "1.0.0",
+  "description": "相由心生 - AI Fortune Master",
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0"
+  }
+}
