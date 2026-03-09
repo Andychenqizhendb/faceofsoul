@@ -25,6 +25,11 @@
 
         <!-- Main Menu -->
         <main class="main-menu" id="main-menu">
+            <div class="menu-card" id="btn-daily">
+                <div class="card-icon">📅</div>
+                <h2 data-i18n="daily_fortune">每日运势</h2>
+                <p data-i18n="daily_desc">今日宜忌，趋吉避凶</p>
+            </div>
             <div class="menu-card" id="btn-face">
                 <div class="card-icon">👤</div>
                 <h2 data-i18n="face_reading">面相分析</h2>
@@ -36,6 +41,69 @@
                 <p data-i18n="palm_desc">拍摄手掌，探索生命线索</p>
             </div>
         </main>
+
+        <!-- Daily Fortune Section (Hidden by default) -->
+        <section class="daily-section hidden" id="daily-section">
+            <button class="back-btn" id="daily-back-btn">
+                <span>←</span> <span data-i18n="back">返回</span>
+            </button>
+            
+            <div class="daily-header">
+                <h2 class="section-title" data-i18n="daily_fortune">📅 每日运势</h2>
+                <p class="daily-date" id="daily-date"></p>
+            </div>
+            
+            <div class="daily-loading" id="daily-loading">
+                <div class="spinner"></div>
+                <p data-i18n="loading_fortune">正在求签问卦...</p>
+            </div>
+            
+            <div class="daily-content hidden" id="daily-content">
+                <div class="daily-score-card">
+                    <div class="daily-score-main">
+                        <span class="daily-score-label" data-i18n="today_fortune">今日运势</span>
+                        <span class="daily-score-stars" id="daily-stars">⭐⭐⭐⭐</span>
+                    </div>
+                </div>
+                
+                <div class="daily-card good">
+                    <h3>✅ <span data-i18n="suitable">宜</span></h3>
+                    <ul id="daily-good"></ul>
+                </div>
+                
+                <div class="daily-card bad">
+                    <h3>❌ <span data-i18n="avoid">忌</span></h3>
+                    <ul id="daily-bad"></ul>
+                </div>
+                
+                <div class="daily-card notice">
+                    <h3>⚠️ <span data-i18n="notice">注意</span></h3>
+                    <p id="daily-notice"></p>
+                </div>
+                
+                <div class="daily-card lucky">
+                    <h3>🍀 <span data-i18n="lucky_tips">幸运提示</span></h3>
+                    <div class="lucky-items">
+                        <div class="lucky-item">
+                            <span class="lucky-label" data-i18n="lucky_number">幸运数字</span>
+                            <span class="lucky-value" id="lucky-number"></span>
+                        </div>
+                        <div class="lucky-item">
+                            <span class="lucky-label" data-i18n="lucky_color">幸运颜色</span>
+                            <span class="lucky-value" id="lucky-color"></span>
+                        </div>
+                        <div class="lucky-item">
+                            <span class="lucky-label" data-i18n="lucky_direction">贵人方位</span>
+                            <span class="lucky-value" id="lucky-direction"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="daily-share-btn" class="share-btn"><span>🔗</span><span data-i18n="share">分享</span></button>
+                </div>
+            </div>
+        </section>
 
         <!-- Analysis Section (Hidden by default) -->
         <section class="analysis-section hidden" id="analysis-section">

@@ -53,7 +53,20 @@ const translations = {
         tip_coffee: "请喝咖啡",
         tip_meal: "请吃素斋",
         tip_incense: "添香油钱",
-        tip_note: "打赏纯属自愿，感恩您的善心 🙏"
+        tip_note: "打赏纯属自愿，感恩您的善心 🙏",
+        
+        // Daily Fortune
+        daily_fortune: "每日运势",
+        daily_desc: "今日宜忌，趋吉避凶",
+        today_fortune: "今日运势",
+        suitable: "宜",
+        avoid: "忌",
+        notice: "注意",
+        lucky_tips: "幸运提示",
+        lucky_number: "幸运数字",
+        lucky_color: "幸运颜色",
+        lucky_direction: "贵人方位",
+        loading_fortune: "正在求签问卦..."
     },
     en: {
         title: "FaceOfSoul",
@@ -108,7 +121,20 @@ const translations = {
         tip_coffee: "Buy a coffee",
         tip_meal: "Buy a meal",
         tip_incense: "Light incense",
-        tip_note: "Tips are voluntary. Thank you for your kindness 🙏"
+        tip_note: "Tips are voluntary. Thank you for your kindness 🙏",
+        
+        // Daily Fortune
+        daily_fortune: "Daily Fortune",
+        daily_desc: "Today's guidance for good fortune",
+        today_fortune: "Today's Fortune",
+        suitable: "Do",
+        avoid: "Avoid",
+        notice: "Notice",
+        lucky_tips: "Lucky Tips",
+        lucky_number: "Lucky Number",
+        lucky_color: "Lucky Color",
+        lucky_direction: "Lucky Direction",
+        loading_fortune: "Consulting the oracle..."
     }
 };
 

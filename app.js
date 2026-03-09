@@ -2,6 +2,7 @@
 
 let currentMode = 'face'; // 'face' or 'palm'
 let uploadedImage = null;
+let dailyFortuneData = null;
 
 // DOM Elements
 const mainMenu = document.getElementById('main-menu');
@@ -22,9 +23,18 @@ const retryBtn = document.getElementById('retry-btn');
 const shareBtn = document.getElementById('share-btn');
 const uploadArea = document.getElementById('upload-area');
 
+// Daily Fortune Elements
+const dailySection = document.getElementById('daily-section');
+const dailyBackBtn = document.getElementById('daily-back-btn');
+const dailyLoading = document.getElementById('daily-loading');
+const dailyContent = document.getElementById('daily-content');
+
 // Event Listeners
+document.getElementById('btn-daily').addEventListener('click', showDailyFortune);
 document.getElementById('btn-face').addEventListener('click', () => startAnalysis('face'));
 document.getElementById('btn-palm').addEventListener('click', () => startAnalysis('palm'));
+dailyBackBtn.addEventListener('click', goBackFromDaily);
+document.getElementById('daily-share-btn').addEventListener('click', shareDailyFortune);
 backBtn.addEventListener('click', goBack);
 uploadBox.addEventListener('click', () => fileInput.click());
 btnCamera.addEventListener('click', () => cameraInput.click());
@@ -54,6 +64,315 @@ function goBack() {
     analysisSection.classList.add('hidden');
     mainMenu.classList.remove('hidden');
     resetAnalysis();
+}
+
+function goBackFromDaily() {
+    dailySection.classList.add('hidden');
+    mainMenu.classList.remove('hidden');
+}
+
+async function showDailyFortune() {
+    mainMenu.classList.add('hidden');
+    dailySection.classList.remove('hidden');
+    dailyLoading.classList.remove('hidden');
+    dailyContent.classList.add('hidden');
+    
+    // Set date
+    const today = new Date();
+    const dateStr = today.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    });
+    
+    // Get lunar date (simplified)
+    const lunarInfo = getLunarInfo(today);
+    document.getElementById('daily-date').textContent = currentLang === 'zh' 
+        ? `${dateStr} · ${lunarInfo}` 
+        : dateStr;
+    
+    try {
+        // Call API for daily fortune
+        const response = await fetch('/api/daily', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                date: today.toISOString().split('T')[0],
+                lang: currentLang 
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                dailyFortuneData = data.data;
+                displayDailyFortune(data.data);
+            } else {
+                displayDailyFortune(generateLocalDailyFortune());
+            }
+        } else {
+            displayDailyFortune(generateLocalDailyFortune());
+        }
+    } catch (error) {
+        console.error('Daily fortune API error:', error);
+        displayDailyFortune(generateLocalDailyFortune());
+    }
+}
+
+function getLunarInfo(date) {
+    // Simplified lunar date approximation
+    const lunarMonths = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
+    const lunarDays = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+                       '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+                       '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+    
+    // Simple approximation (not accurate, just for display)
+    const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+    const lunarMonth = lunarMonths[(Math.floor(dayOfYear / 30) + 1) % 12];
+    const lunarDay = lunarDays[(dayOfYear % 30)];
+    
+    return `农历${lunarMonth}${lunarDay}`;
+}
+
+function displayDailyFortune(data) {
+    dailyLoading.classList.add('hidden');
+    dailyContent.classList.remove('hidden');
+    
+    // Stars
+    const stars = '⭐'.repeat(data.rating || 4) + '☆'.repeat(5 - (data.rating || 4));
+    document.getElementById('daily-stars').textContent = stars;
+    
+    // Good things
+    const goodList = document.getElementById('daily-good');
+    goodList.innerHTML = data.good.map(item => `<li>${item}</li>`).join('');
+    
+    // Bad things
+    const badList = document.getElementById('daily-bad');
+    badList.innerHTML = data.bad.map(item => `<li>${item}</li>`).join('');
+    
+    // Notice
+    document.getElementById('daily-notice').textContent = data.notice;
+    
+    // Lucky items
+    document.getElementById('lucky-number').textContent = data.luckyNumber;
+    document.getElementById('lucky-color').textContent = data.luckyColor;
+    document.getElementById('lucky-direction').textContent = data.luckyDirection;
+}
+
+function generateLocalDailyFortune() {
+    const dayOfWeek = new Date().getDay();
+    const dayOfMonth = new Date().getDate();
+    
+    if (currentLang === 'zh') {
+        const goodOptions = [
+            ['签约', '谈判', '见贵人'],
+            ['出行', '访友', '聚餐'],
+            ['学习', '阅读', '冥想'],
+            ['运动', '健身', '早起'],
+            ['理财', '储蓄', '规划'],
+            ['表白', '约会', '社交'],
+            ['创作', '写作', '设计']
+        ];
+        
+        const badOptions = [
+            ['争吵', '诉讼'],
+            ['熬夜', '酗酒'],
+            ['投机', '赌博'],
+            ['搬家', '动土'],
+            ['借贷', '担保'],
+            ['冲动消费', '大额支出'],
+            ['与人争执', '意气用事']
+        ];
+        
+        const notices = [
+            '今日宜静不宜动，遇事多思考再行动。注意控制情绪，贵人就在身边。',
+            '财运平稳，适合处理日常事务。与家人多沟通，会有意外收获。',
+            '事业运上升，把握机会主动出击。注意饮食规律，肠胃需要呵护。',
+            '桃花运旺盛，单身者注意身边人。已有伴侣者宜制造浪漫。',
+            '学习运极佳，适合充电提升自己。避免与人争论，退一步海阔天空。',
+            '健康运需注意，适当休息不要过度劳累。下午运势回升。',
+            '整体运势平稳向好，适合稳扎稳打。晚间有贵人消息。'
+        ];
+        
+        const colors = ['红色', '金色', '蓝色', '绿色', '紫色', '白色', '黄色'];
+        const directions = ['正东', '东南', '正南', '西南', '正西', '西北', '正北', '东北'];
+        
+        return {
+            rating: Math.min(5, Math.max(3, (dayOfMonth % 3) + 3)),
+            good: goodOptions[dayOfWeek],
+            bad: badOptions[dayOfWeek],
+            notice: notices[dayOfWeek],
+            luckyNumber: `${(dayOfMonth % 9) + 1}, ${((dayOfMonth + 3) % 9) + 1}`,
+            luckyColor: colors[dayOfWeek],
+            luckyDirection: directions[(dayOfMonth + dayOfWeek) % 8]
+        };
+    } else {
+        const goodOptions = [
+            ['Sign contracts', 'Negotiate', 'Meet mentors'],
+            ['Travel', 'Visit friends', 'Dine out'],
+            ['Study', 'Read', 'Meditate'],
+            ['Exercise', 'Work out', 'Wake early'],
+            ['Invest wisely', 'Save money', 'Plan ahead'],
+            ['Express feelings', 'Date', 'Socialize'],
+            ['Create', 'Write', 'Design']
+        ];
+        
+        const badOptions = [
+            ['Argue', 'Litigate'],
+            ['Stay up late', 'Drink heavily'],
+            ['Speculate', 'Gamble'],
+            ['Move house', 'Renovate'],
+            ['Lend money', 'Guarantee loans'],
+            ['Impulse buy', 'Big purchases'],
+            ['Confront others', 'Act rashly']
+        ];
+        
+        const notices = [
+            'Stay calm today. Think twice before acting. Your lucky person is nearby.',
+            'Steady finances. Handle daily matters. Family communication brings rewards.',
+            'Career rising. Seize opportunities. Watch your diet and digestion.',
+            'Romance blooming. Singles, look around. Couples, create romance.',
+            'Great for learning. Avoid arguments. Step back for peace.',
+            'Health needs attention. Rest properly. Fortune improves in afternoon.',
+            'Overall fortune stable. Steady progress. Good news in evening.'
+        ];
+        
+        const colors = ['Red', 'Gold', 'Blue', 'Green', 'Purple', 'White', 'Yellow'];
+        const directions = ['East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest', 'North', 'Northeast'];
+        
+        return {
+            rating: Math.min(5, Math.max(3, (dayOfMonth % 3) + 3)),
+            good: goodOptions[dayOfWeek],
+            bad: badOptions[dayOfWeek],
+            notice: notices[dayOfWeek],
+            luckyNumber: `${(dayOfMonth % 9) + 1}, ${((dayOfMonth + 3) % 9) + 1}`,
+            luckyColor: colors[dayOfWeek],
+            luckyDirection: directions[(dayOfMonth + dayOfWeek) % 8]
+        };
+    }
+}
+
+async function shareDailyFortune() {
+    if (!dailyFortuneData) {
+        dailyFortuneData = generateLocalDailyFortune();
+    }
+    
+    const btn = document.getElementById('daily-share-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span>⏳</span><span>生成中...</span>';
+    btn.disabled = true;
+    
+    try {
+        const today = new Date();
+        const dateStr = today.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+        
+        const stars = '⭐'.repeat(dailyFortuneData.rating || 4);
+        
+        // Create share card
+        const cardContainer = document.createElement('div');
+        cardContainer.id = 'daily-share-container';
+        cardContainer.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        `;
+        
+        const card = document.createElement('div');
+        card.id = 'daily-share-card';
+        card.style.cssText = `
+            width: 320px; background: linear-gradient(180deg, #2D1F15, #3D2A1E, #2D1F15);
+            border-radius: 20px; padding: 25px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 2px solid #C9A227; position: relative;
+        `;
+        
+        card.innerHTML = `
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:2rem;">📅</div>
+                <h2 style="font-family:'Ma Shan Zheng',cursive;color:#C9A227;font-size:1.8rem;margin:8px 0;letter-spacing:5px;">${currentLang === 'zh' ? '每日运势' : 'Daily Fortune'}</h2>
+                <p style="color:#C4B59D;font-size:0.9rem;">${dateStr}</p>
+                <div style="font-size:1.5rem;margin-top:10px;">${stars}</div>
+            </div>
+            
+            <div style="display:flex;gap:10px;margin-bottom:15px;">
+                <div style="flex:1;background:rgba(76,175,80,0.2);border-radius:10px;padding:12px;border-left:3px solid #4CAF50;">
+                    <div style="color:#4CAF50;font-size:0.8rem;margin-bottom:6px;">✅ ${currentLang === 'zh' ? '宜' : 'DO'}</div>
+                    <div style="color:#F5EDE0;font-size:0.85rem;line-height:1.5;">${dailyFortuneData.good.join(' · ')}</div>
+                </div>
+                <div style="flex:1;background:rgba(244,67,54,0.2);border-radius:10px;padding:12px;border-left:3px solid #F44336;">
+                    <div style="color:#F44336;font-size:0.8rem;margin-bottom:6px;">❌ ${currentLang === 'zh' ? '忌' : "DON'T"}</div>
+                    <div style="color:#F5EDE0;font-size:0.85rem;line-height:1.5;">${dailyFortuneData.bad.join(' · ')}</div>
+                </div>
+            </div>
+            
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:15px;">
+                <div style="background:rgba(201,162,39,0.15);padding:8px 12px;border-radius:8px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#C4B59D;">${currentLang === 'zh' ? '幸运数字' : 'Lucky #'}</div>
+                    <div style="color:#C9A227;font-weight:bold;">${dailyFortuneData.luckyNumber}</div>
+                </div>
+                <div style="background:rgba(201,162,39,0.15);padding:8px 12px;border-radius:8px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#C4B59D;">${currentLang === 'zh' ? '幸运色' : 'Color'}</div>
+                    <div style="color:#C9A227;font-weight:bold;">${dailyFortuneData.luckyColor}</div>
+                </div>
+                <div style="background:rgba(201,162,39,0.15);padding:8px 12px;border-radius:8px;text-align:center;">
+                    <div style="font-size:0.7rem;color:#C4B59D;">${currentLang === 'zh' ? '贵人方位' : 'Direction'}</div>
+                    <div style="color:#C9A227;font-weight:bold;">${dailyFortuneData.luckyDirection}</div>
+                </div>
+            </div>
+            
+            <div style="text-align:center;padding-top:12px;border-top:1px solid rgba(201,162,39,0.2);">
+                <div style="background:linear-gradient(135deg,#C9A227,#E8D48B);color:#2D1810;padding:8px 16px;border-radius:15px;display:inline-block;font-size:0.85rem;font-weight:bold;">
+                    🔮 ai-fortune-master.vercel.app
+                </div>
+            </div>
+        `;
+        
+        const actions = document.createElement('div');
+        actions.style.cssText = 'display:flex;gap:12px;margin-top:20px;';
+        actions.innerHTML = `
+            <button id="daily-card-save" style="flex:1;padding:14px 20px;background:linear-gradient(135deg,#C9A227,#E8D48B);border:none;border-radius:25px;color:#2D1810;font-size:1rem;font-weight:bold;cursor:pointer;">
+                📱 ${currentLang === 'zh' ? '保存图片' : 'Save'}
+            </button>
+            <button id="daily-card-close" style="padding:14px 20px;background:rgba(255,255,255,0.1);border:1px solid #C9A227;border-radius:25px;color:#C9A227;cursor:pointer;">✕</button>
+        `;
+        
+        cardContainer.appendChild(card);
+        cardContainer.appendChild(actions);
+        document.body.appendChild(cardContainer);
+        
+        document.getElementById('daily-card-close').onclick = () => cardContainer.remove();
+        cardContainer.onclick = (e) => { if (e.target === cardContainer) cardContainer.remove(); };
+        
+        document.getElementById('daily-card-save').onclick = async () => {
+            const saveBtn = document.getElementById('daily-card-save');
+            saveBtn.textContent = '⏳...';
+            try {
+                const canvas = await html2canvas(card, { backgroundColor: '#2D1F15', scale: 2 });
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], 'daily-fortune-' + Date.now() + '.png', { type: 'image/png' });
+                
+                if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'Daily Fortune' });
+                    cardContainer.remove();
+                } else {
+                    const w = window.open('');
+                    w?.document.write(`<html><head><meta name="viewport" content="width=device-width"><style>body{margin:0;padding:20px;background:#1a1008;text-align:center}img{max-width:100%;border-radius:16px}p{color:#C9A227;font-family:sans-serif;margin-top:20px}</style></head><body><img src="${dataUrl}"><p>📱 ${currentLang === 'zh' ? '长按保存' : 'Long press to save'}</p></body></html>`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            saveBtn.textContent = '📱 ' + (currentLang === 'zh' ? '保存图片' : 'Save');
+        };
+    } catch (err) {
+        console.error(err);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 
 function handleFileSelect(event) {
