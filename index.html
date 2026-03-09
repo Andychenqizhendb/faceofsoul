@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>相由心生 | FaceOfSoul</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Long+Cang&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -18,7 +20,7 @@
         <!-- Header -->
         <header class="header">
             <h1 class="title" data-i18n="title">AI 相师</h1>
-            <p class="subtitle" data-i18n="subtitle">古老智慧 × 现代科技</p>
+            <p class="subtitle" data-i18n="subtitle">一面见心，一掌知命</p>
         </header>
 
         <!-- Main Menu -->
@@ -75,8 +77,12 @@
                     <h3 data-i18n="analysis_result">分析结果</h3>
                     <div id="result-content" class="result-content"></div>
                 </div>
-                <button id="retry-btn" class="retry-btn" data-i18n="try_again">再测一次</button>
-                <button id="share-btn" class="share-btn" data-i18n="share">分享结果</button>
+                <div class="action-buttons">
+                    <button id="retry-btn" class="retry-btn"><span>🔄</span><span data-i18n="try_again">再测</span></button>
+                    <button id="save-img-btn" class="save-img-btn"><span>🖼️</span><span>存图</span></button>
+                    <button id="pdf-btn" class="pdf-btn"><span>📜</span><span>导出</span></button>
+                    <button id="share-btn" class="share-btn"><span>🔗</span><span data-i18n="share">分享</span></button>
+                </div>
                 
                 <!-- Tip Section -->
                 <div class="tip-section">
@@ -107,11 +113,19 @@
                 
                 <!-- Chat Section -->
                 <div class="chat-section">
-                    <h3 data-i18n="ask_master">继续问相师</h3>
+                    <h3 data-i18n="ask_master">🔮 继续问相师</h3>
+                    <div class="chat-suggestions" id="chat-suggestions">
+                        <button class="suggest-btn" data-q="我今年财运如何？">💰 财运</button>
+                        <button class="suggest-btn" data-q="我的事业发展怎么样？">💼 事业</button>
+                        <button class="suggest-btn" data-q="我的感情运势如何？">💕 感情</button>
+                        <button class="suggest-btn" data-q="有什么需要注意的？">⚠️ 注意</button>
+                    </div>
                     <div class="chat-messages" id="chat-messages"></div>
                     <div class="chat-input-area">
-                        <input type="text" id="chat-input" data-i18n-placeholder="chat_placeholder" placeholder="想了解更多？问我吧...">
-                        <button id="chat-send" class="chat-send-btn">→</button>
+                        <input type="text" id="chat-input" data-i18n-placeholder="chat_placeholder" placeholder="问问财运、事业、感情...">
+                        <button id="chat-send" class="chat-send-btn">
+                            <span>➤</span>
+                        </button>
                     </div>
                 </div>
             </div>

@@ -57,7 +57,7 @@ const translations = {
     },
     en: {
         title: "FaceOfSoul",
-        subtitle: "Read the Face, Know the Heart · Read the Palm, Know the Fate",
+        subtitle: "One Glance Sees the Heart, One Palm Knows the Fate",
         face_reading: "Face Reading",
         face_desc: "Upload a photo to analyze facial features",
         palm_reading: "Palm Reading",

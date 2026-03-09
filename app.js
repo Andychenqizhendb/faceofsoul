@@ -34,6 +34,8 @@ fileInput.addEventListener('change', handleFileSelect);
 analyzeBtn.addEventListener('click', performAnalysis);
 retryBtn.addEventListener('click', resetAnalysis);
 shareBtn.addEventListener('click', shareResult);
+document.getElementById('pdf-btn').addEventListener('click', exportPDF);
+document.getElementById('save-img-btn').addEventListener('click', saveAsImage);
 
 function startAnalysis(mode) {
     currentMode = mode;
@@ -368,22 +370,554 @@ function formatResult(result) {
 }
 
 function shareResult() {
-    if (navigator.share) {
-        navigator.share({
-            title: t('title'),
-            text: currentLang === 'zh' 
-                ? '我刚用 AI 相师分析了我的运势，来试试吧！' 
-                : 'I just analyzed my fortune with AI Fortune Master. Try it!',
-            url: window.location.href
-        }).catch(console.error);
-    } else {
-        // Fallback: copy to clipboard
+    generateShareCard();
+}
+
+async function generateShareCard() {
+    const btn = document.getElementById('share-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span>⏳</span><span>生成中...</span>';
+    btn.disabled = true;
+    
+    try {
+        // Get current analysis data
+        const scores = lastAnalysisResult?.scores || { career: 85, wealth: 80, love: 88, health: 82 };
+        const overall = lastAnalysisResult?.overall || 84;
+        const readingType = currentMode === 'face' 
+            ? (currentLang === 'zh' ? '面相分析' : 'Face Reading')
+            : (currentLang === 'zh' ? '手相分析' : 'Palm Reading');
+        
+        // Get a key insight
+        const insight = lastAnalysisResult?.career?.substring(0, 50) + '...' || 
+            (currentLang === 'zh' ? '事业运势上扬，近期有贵人相助...' : 'Career fortune rising...');
+        
+        const date = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+        
+        // Create share card container
+        const cardContainer = document.createElement('div');
+        cardContainer.id = 'share-card-container';
+        cardContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        `;
+        
+        // The actual share card
+        const card = document.createElement('div');
+        card.id = 'share-card';
+        card.style.cssText = `
+            width: 340px;
+            background: linear-gradient(180deg, #2D1F15 0%, #3D2A1E 50%, #2D1F15 100%);
+            border-radius: 20px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,162,39,0.1);
+            border: 2px solid #C9A227;
+            position: relative;
+            overflow: hidden;
+        `;
+        
+        card.innerHTML = `
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#8B2323,#C9A227,#8B2323);"></div>
+            
+            <div style="text-align:center;margin-bottom:25px;">
+                <div style="font-size:2.5rem;margin-bottom:10px;">🔮</div>
+                <h2 style="font-family:'Ma Shan Zheng',cursive;color:#C9A227;font-size:2rem;margin:0;letter-spacing:8px;">AI 相师</h2>
+                <p style="color:#C4B59D;font-size:0.85rem;margin-top:8px;">${readingType} · ${date}</p>
+            </div>
+            
+            <div style="background:linear-gradient(135deg,rgba(139,35,35,0.2),rgba(201,162,39,0.1));border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid rgba(201,162,39,0.2);">
+                <div style="text-align:center;margin-bottom:15px;">
+                    <div style="font-size:0.9rem;color:#C4B59D;margin-bottom:5px;">${currentLang === 'zh' ? '综合运势' : 'Overall'}</div>
+                    <div style="font-size:3rem;color:#C9A227;font-weight:bold;text-shadow:0 0 20px rgba(201,162,39,0.5);">${overall}</div>
+                </div>
+                <div style="display:flex;justify-content:space-around;text-align:center;">
+                    <div>
+                        <div style="font-size:0.75rem;color:#C4B59D;">💼 ${currentLang === 'zh' ? '事业' : 'Career'}</div>
+                        <div style="font-size:1.3rem;color:#F5EDE0;font-weight:bold;">${scores.career}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#C4B59D;">💰 ${currentLang === 'zh' ? '财运' : 'Wealth'}</div>
+                        <div style="font-size:1.3rem;color:#F5EDE0;font-weight:bold;">${scores.wealth}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#C4B59D;">💕 ${currentLang === 'zh' ? '感情' : 'Love'}</div>
+                        <div style="font-size:1.3rem;color:#F5EDE0;font-weight:bold;">${scores.love}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#C4B59D;">💪 ${currentLang === 'zh' ? '健康' : 'Health'}</div>
+                        <div style="font-size:1.3rem;color:#F5EDE0;font-weight:bold;">${scores.health}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background:rgba(245,237,224,0.05);border-radius:12px;padding:15px;margin-bottom:20px;border-left:3px solid #8B2323;">
+                <p style="color:#F5EDE0;font-size:0.9rem;line-height:1.6;margin:0;font-style:italic;">"${insight}"</p>
+            </div>
+            
+            <div style="text-align:center;padding-top:15px;border-top:1px solid rgba(201,162,39,0.2);">
+                <div style="background:linear-gradient(135deg,#C9A227,#E8D48B);color:#2D1810;padding:10px 20px;border-radius:20px;display:inline-block;font-weight:bold;font-size:0.9rem;">
+                    🔮 ai-fortune-master.vercel.app
+                </div>
+                <p style="color:#C4B59D;font-size:0.7rem;margin-top:12px;">一面见心，一掌知命 ✨</p>
+            </div>
+        `;
+        
+        // Action buttons
+        const actions = document.createElement('div');
+        actions.style.cssText = `
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        `;
+        actions.innerHTML = `
+            <button id="share-card-save" style="
+                flex: 1;
+                padding: 14px 20px;
+                background: linear-gradient(135deg, #C9A227, #E8D48B);
+                border: none;
+                border-radius: 25px;
+                color: #2D1810;
+                font-size: 1rem;
+                font-weight: bold;
+                cursor: pointer;
+            ">📱 ${currentLang === 'zh' ? '保存图片' : 'Save Image'}</button>
+            <button id="share-card-close" style="
+                padding: 14px 20px;
+                background: rgba(255,255,255,0.1);
+                border: 1px solid #C9A227;
+                border-radius: 25px;
+                color: #C9A227;
+                font-size: 1rem;
+                cursor: pointer;
+            ">✕</button>
+        `;
+        
+        cardContainer.appendChild(card);
+        cardContainer.appendChild(actions);
+        document.body.appendChild(cardContainer);
+        
+        // Event listeners
+        document.getElementById('share-card-close').addEventListener('click', () => {
+            cardContainer.remove();
+        });
+        
+        document.getElementById('share-card-save').addEventListener('click', async () => {
+            const saveBtn = document.getElementById('share-card-save');
+            saveBtn.textContent = '⏳ 生成中...';
+            saveBtn.disabled = true;
+            
+            try {
+                const canvas = await html2canvas(card, {
+                    backgroundColor: '#2D1F15',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false
+                });
+                
+                const dataUrl = canvas.toDataURL('image/png');
+                const response = await fetch(dataUrl);
+                const blob = await response.blob();
+                const file = new File([blob], 'ai-xiangshi-share-' + Date.now() + '.png', { type: 'image/png' });
+                
+                // Try Web Share API first
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'AI 相师',
+                        text: currentLang === 'zh' ? '我的运势分析结果 ✨' : 'My fortune reading ✨'
+                    });
+                    cardContainer.remove();
+                } else {
+                    // Fallback: open image in new tab
+                    const w = window.open('');
+                    if (w) {
+                        w.document.write(`
+                            <html>
+                            <head>
+                                <meta name="viewport" content="width=device-width">
+                                <title>AI 相师 分享卡片</title>
+                                <style>
+                                    body { margin: 0; padding: 20px; background: #1a1008; text-align: center; }
+                                    img { max-width: 100%; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+                                    p { color: #C9A227; font-family: sans-serif; margin-top: 20px; }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${dataUrl}">
+                                <p>📱 ${currentLang === 'zh' ? '长按图片保存，分享到小红书/朋友圈' : 'Long press to save and share'}</p>
+                            </body>
+                            </html>
+                        `);
+                    }
+                }
+            } catch (err) {
+                console.error('Share card save failed:', err);
+                alert(currentLang === 'zh' ? '保存失败，请截图保存' : 'Save failed, please take a screenshot');
+            } finally {
+                saveBtn.textContent = '📱 ' + (currentLang === 'zh' ? '保存图片' : 'Save Image');
+                saveBtn.disabled = false;
+            }
+        });
+        
+        // Click outside to close
+        cardContainer.addEventListener('click', (e) => {
+            if (e.target === cardContainer) {
+                cardContainer.remove();
+            }
+        });
+        
+    } catch (err) {
+        console.error('Generate share card failed:', err);
+        // Fallback to simple share
         const text = currentLang === 'zh'
-            ? 'AI 相师 - 古老智慧 × 现代科技 ' + window.location.href
-            : 'AI Fortune Master - Ancient Wisdom × Modern Technology ' + window.location.href;
+            ? 'AI 相师 - 一面见心，一掌知命 ' + window.location.href
+            : 'AI Fortune Master ' + window.location.href;
         navigator.clipboard.writeText(text).then(() => {
             alert(currentLang === 'zh' ? '链接已复制！' : 'Link copied!');
         });
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+function exportPDF() {
+    const resultContent = document.getElementById('result-content').innerHTML;
+    const title = currentLang === 'zh' ? 'AI 相师 - 命理分析报告' : 'AI Fortune Master - Reading Report';
+    const date = new Date().toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+    const readingType = currentMode === 'face' 
+        ? (currentLang === 'zh' ? '面相分析' : 'Face Reading')
+        : (currentLang === 'zh' ? '手相分析' : 'Palm Reading');
+    
+    // Get uploaded image
+    const imageHtml = uploadedImage 
+        ? `<div class="photo-section">
+            <h2>${currentLang === 'zh' ? '📷 分析照片' : '📷 Analyzed Photo'}</h2>
+            <img src="${uploadedImage}" alt="Analyzed photo">
+           </div>` 
+        : '';
+    
+    // Get chat messages
+    const chatMsgs = document.querySelectorAll('.chat-message');
+    let chatHtml = '';
+    if (chatMsgs.length > 0) {
+        chatHtml = `<div class="chat-section">
+            <h2>${currentLang === 'zh' ? '💬 相师问答' : '💬 Follow-up Q&A'}</h2>`;
+        chatMsgs.forEach(msg => {
+            const isUser = msg.classList.contains('user');
+            const sender = isUser 
+                ? (currentLang === 'zh' ? '你' : 'You')
+                : (currentLang === 'zh' ? '相师' : 'Master');
+            const text = msg.querySelector('div:last-child')?.textContent || '';
+            chatHtml += `<div class="chat-msg ${isUser ? 'user' : 'master'}">
+                <span class="chat-sender">${sender}：</span>${text}
+            </div>`;
+        });
+        chatHtml += '</div>';
+    }
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>${title}</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Ma+Shan+Zheng&display=swap');
+                
+                body {
+                    font-family: 'Noto Serif SC', serif;
+                    max-width: 700px;
+                    margin: 0 auto;
+                    padding: 40px 30px;
+                    color: #2D1810;
+                    line-height: 1.8;
+                    background: #FFF9F0;
+                }
+                
+                .header {
+                    text-align: center;
+                    border-bottom: 3px double #8B2323;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }
+                
+                .header h1 {
+                    font-family: 'Ma Shan Zheng', cursive;
+                    color: #8B2323;
+                    font-size: 2.5rem;
+                    margin: 0 0 10px 0;
+                    letter-spacing: 8px;
+                }
+                
+                .header .type {
+                    font-family: 'Ma Shan Zheng', cursive;
+                    color: #C9A227;
+                    font-size: 1.3rem;
+                    margin-bottom: 10px;
+                }
+                
+                .header .date {
+                    color: #6B4423;
+                    font-size: 0.9rem;
+                }
+                
+                .photo-section {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 1px dashed #DDD;
+                }
+                
+                .photo-section h2 {
+                    font-family: 'Ma Shan Zheng', cursive;
+                    color: #8B2323;
+                    font-size: 1.5rem;
+                    margin-bottom: 15px;
+                }
+                
+                .photo-section img {
+                    max-width: 250px;
+                    max-height: 250px;
+                    border-radius: 12px;
+                    border: 3px solid #C9A227;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                }
+                
+                .content h4 {
+                    font-family: 'Ma Shan Zheng', cursive;
+                    color: #8B2323;
+                    font-size: 1.3rem;
+                    margin: 25px 0 12px;
+                    border-left: 4px solid #8B2323;
+                    padding-left: 12px;
+                }
+                
+                .content p {
+                    margin-bottom: 12px;
+                    text-align: justify;
+                }
+                
+                .content ul {
+                    list-style: none;
+                    padding-left: 0;
+                }
+                
+                .content li {
+                    padding: 5px 0 5px 20px;
+                    position: relative;
+                }
+                
+                .content li::before {
+                    content: '◈';
+                    position: absolute;
+                    left: 0;
+                    color: #8B2323;
+                }
+                
+                .fortune-score {
+                    display: flex;
+                    justify-content: space-around;
+                    margin: 25px 0;
+                    padding: 20px;
+                    background: linear-gradient(135deg, rgba(139, 35, 35, 0.08), rgba(201, 162, 39, 0.08));
+                    border-radius: 8px;
+                    border: 1px solid rgba(139, 35, 35, 0.2);
+                }
+                
+                .score-item {
+                    text-align: center;
+                }
+                
+                .score-label {
+                    font-size: 0.85rem;
+                    color: #6B4423;
+                    margin-bottom: 8px;
+                }
+                
+                .score-value {
+                    font-size: 1.5rem;
+                    color: #8B2323;
+                    font-weight: bold;
+                }
+                
+                .chat-section {
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 2px solid #C9A227;
+                }
+                
+                .chat-section h2 {
+                    font-family: 'Ma Shan Zheng', cursive;
+                    color: #8B2323;
+                    font-size: 1.5rem;
+                    margin-bottom: 20px;
+                    text-align: center;
+                }
+                
+                .chat-msg {
+                    padding: 12px 15px;
+                    margin-bottom: 12px;
+                    border-radius: 10px;
+                    line-height: 1.6;
+                }
+                
+                .chat-msg.user {
+                    background: rgba(201, 162, 39, 0.15);
+                    border-left: 3px solid #C9A227;
+                }
+                
+                .chat-msg.master {
+                    background: rgba(139, 35, 35, 0.1);
+                    border-left: 3px solid #8B2323;
+                }
+                
+                .chat-sender {
+                    font-weight: bold;
+                    color: #8B2323;
+                }
+                
+                .footer {
+                    text-align: center;
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 1px solid #DDD;
+                    color: #999;
+                    font-size: 0.8rem;
+                }
+                
+                @media print {
+                    body { background: white; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🔮 ${currentLang === 'zh' ? '命理分析报告' : 'Fortune Reading Report'}</h1>
+                <p class="type">${readingType}</p>
+                <p class="date">${date}</p>
+            </div>
+            ${imageHtml}
+            <div class="content">
+                ${resultContent}
+            </div>
+            ${chatHtml}
+            <div class="footer">
+                <p>${currentLang === 'zh' ? 'AI 相师 · 一面见心，一掌知命' : 'AI Fortune Master · One Glance, One Heart'}</p>
+                <p>ai-fortune-master.vercel.app</p>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    
+    // Wait for fonts and image to load then print
+    setTimeout(() => {
+        printWindow.print();
+    }, 800);
+}
+
+async function saveAsImage() {
+    const btn = document.getElementById('save-img-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span>⏳</span><span>生成中...</span>';
+    btn.disabled = true;
+    
+    try {
+        // 直接截取页面上的 result-card
+        const resultCard = document.querySelector('.result-card');
+        if (!resultCard) {
+            throw new Error('找不到结果卡片');
+        }
+        
+        // 临时添加简单水印footer（不用QR避免出错）
+        const watermark = document.createElement('div');
+        watermark.id = 'temp-watermark';
+        watermark.style.cssText = 'text-align:center;padding:20px;background:linear-gradient(135deg,#3D2A1E,#2D1F15);border-radius:0 0 16px 16px;margin-top:-10px;';
+        watermark.innerHTML = `
+            <div style="background:linear-gradient(135deg,#C9A227,#E8D48B);color:#2D1810;padding:12px 24px;border-radius:25px;display:inline-block;font-weight:bold;">
+                🔮 ai-fortune-master.vercel.app
+            </div>
+            <div style="color:#C4B59D;font-size:0.75rem;margin-top:12px;">AI 相师 · 一面见心，一掌知命</div>
+        `;
+        resultCard.appendChild(watermark);
+        
+        let canvas;
+        try {
+            canvas = await html2canvas(resultCard, {
+                backgroundColor: '#2D1F15',
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false
+            });
+        } finally {
+            watermark.remove();
+        }
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        // 转换为 Blob 和 File
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'ai-xiangshi-' + Date.now() + '.png', { type: 'image/png' });
+        
+        // 尝试使用 Web Share API
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'AI 相师',
+                text: '一面见心，一掌知命'
+            });
+        } else {
+            // 降级：打开图片页面
+            const w = window.open('');
+            if (w) {
+                w.document.write(`<html><head><meta name="viewport" content="width=device-width"><style>body{margin:0;padding:20px;background:#1a1008;text-align:center}img{max-width:100%}p{color:#C9A227;font-family:sans-serif;margin-top:15px}</style></head><body><img src="${dataUrl}"><p>📱 长按图片保存</p></body></html>`);
+            }
+        }
+    } catch (err) {
+        console.error('保存失败:', err);
+        // 降级方案：打开截图页面
+        const resultHtml = document.getElementById('result-content').innerHTML;
+        const date = new Date().toLocaleDateString('zh-CN');
+        const type = currentMode === 'face' ? '面相分析' : '手相分析';
+        
+        const page = window.open('', '_blank');
+        if (page) {
+            page.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font-family:-apple-system,sans-serif;background:#2D1F15;color:#F5EDE0;padding:20px;margin:0}
+.card{background:#3D2A1E;border-radius:16px;padding:24px;max-width:400px;margin:0 auto}
+.head{text-align:center;border-bottom:2px solid #C9A227;padding-bottom:16px;margin-bottom:16px}
+.head h1{color:#C9A227;font-size:1.5rem;margin:8px 0}
+.head p{color:#C4B59D;font-size:0.8rem}
+.result{font-size:0.9rem;line-height:1.7}
+.result h4{color:#C9A227;margin:16px 0 8px}
+.foot{text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #4A3728}
+.foot .btn{background:linear-gradient(135deg,#C9A227,#E8D48B);color:#2D1810;padding:10px 20px;border-radius:20px;display:inline-block;font-weight:bold}
+.foot p{color:#C4B59D;font-size:0.7rem;margin-top:10px}
+.tip{background:rgba(201,162,39,0.15);color:#C9A227;text-align:center;padding:12px;border-radius:8px;margin-top:16px;font-size:0.85rem}</style></head>
+<body><div class="card"><div class="head"><div style="font-size:2rem">🔮</div><h1>命理分析报告</h1><p>${type} · ${date}</p></div>
+<div class="result">${resultHtml}</div>
+<div class="foot"><div class="btn">🔮 ai-fortune-master.vercel.app</div><p>AI 相师 · 一面见心，一掌知命</p></div></div>
+<div class="tip">📱 截图保存，分享给朋友</div></body></html>`);
+            page.document.close();
+        }
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
@@ -398,6 +932,17 @@ let lastAnalysisContext = '';
 chatSend.addEventListener('click', sendChatMessage);
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendChatMessage();
+});
+
+// Quick suggestion buttons
+document.querySelectorAll('.suggest-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const question = btn.getAttribute('data-q');
+        chatInput.value = question;
+        sendChatMessage();
+        // Hide suggestions after first use
+        document.getElementById('chat-suggestions').style.display = 'none';
+    });
 });
 
 async function sendChatMessage() {
