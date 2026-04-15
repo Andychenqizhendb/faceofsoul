@@ -1,5 +1,11 @@
 // AI Fortune Master - Main Application Logic
 
+// HTML-escape helper: use for any untrusted/AI-sourced string that
+// we must still drop into an innerHTML template (e.g. when the structure
+// needs to remain as HTML). Prefer textContent / createElement when possible.
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 let currentMode = 'face'; // 'face' or 'palm'
 let uploadedImage = null;
 let dailyFortuneData = null;
@@ -145,11 +151,19 @@ function displayDailyFortune(data) {
     
     // Good things
     const goodList = document.getElementById('daily-good');
-    goodList.innerHTML = data.good.map(item => `<li>${item}</li>`).join('');
+    goodList.replaceChildren(...(data.good || []).map(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        return li;
+    }));
     
     // Bad things
     const badList = document.getElementById('daily-bad');
-    badList.innerHTML = data.bad.map(item => `<li>${item}</li>`).join('');
+    badList.replaceChildren(...(data.bad || []).map(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        return li;
+    }));
     
     // Notice
     document.getElementById('daily-notice').textContent = data.notice;
@@ -632,35 +646,35 @@ function formatResult(result) {
     let html = `
         <div class="fortune-score">
             <div class="score-item">
-                <div class="score-label">${t('overall_fortune')}</div>
-                <div class="score-value">${result.overall}</div>
+                <div class="score-label">${esc(t('overall_fortune'))}</div>
+                <div class="score-value">${esc(result.overall)}</div>
             </div>
             <div class="score-item">
-                <div class="score-label">${labels.career}</div>
-                <div class="score-value">${result.scores.career}</div>
+                <div class="score-label">${esc(labels.career)}</div>
+                <div class="score-value">${esc(result.scores.career)}</div>
             </div>
             <div class="score-item">
-                <div class="score-label">${labels.wealth}</div>
-                <div class="score-value">${result.scores.wealth}</div>
+                <div class="score-label">${esc(labels.wealth)}</div>
+                <div class="score-value">${esc(result.scores.wealth)}</div>
             </div>
             <div class="score-item">
-                <div class="score-label">${labels.love}</div>
-                <div class="score-value">${result.scores.love}</div>
+                <div class="score-label">${esc(labels.love)}</div>
+                <div class="score-value">${esc(result.scores.love)}</div>
             </div>
         </div>
     `;
     
     // Personality or Lines section
     if (result.personality) {
-        html += `<h4>${t('personality')}</h4><ul>`;
+        html += `<h4>${esc(t('personality'))}</h4><ul>`;
         result.personality.forEach(p => {
-            html += `<li>${p}</li>`;
+            html += `<li>${esc(p)}</li>`;
         });
         html += `</ul>`;
     }
     
     if (result.lines) {
-        html += `<h4>${lang === 'zh' ? '手纹解读' : 'Palm Lines'}</h4>`;
+        html += `<h4>${esc(lang === 'zh' ? '手纹解读' : 'Palm Lines')}</h4>`;
         for (const [key, value] of Object.entries(result.lines)) {
             const lineNames = {
                 life: lang === 'zh' ? '生命线' : 'Life Line',
@@ -668,20 +682,20 @@ function formatResult(result) {
                 heart: lang === 'zh' ? '感情线' : 'Heart Line',
                 fate: lang === 'zh' ? '事业线' : 'Fate Line'
             };
-            html += `<p><strong>${lineNames[key]}：</strong>${value}</p>`;
+            html += `<p><strong>${esc(lineNames[key])}：</strong>${esc(value)}</p>`;
         }
     }
     
     // Detailed readings
-    html += `<h4>${labels.career}</h4><p>${result.career}</p>`;
-    html += `<h4>${labels.wealth}</h4><p>${result.wealth}</p>`;
-    html += `<h4>${labels.love}</h4><p>${result.love}</p>`;
-    html += `<h4>${t('health')}</h4><p>${result.health}</p>`;
+    html += `<h4>${esc(labels.career)}</h4><p>${esc(result.career)}</p>`;
+    html += `<h4>${esc(labels.wealth)}</h4><p>${esc(result.wealth)}</p>`;
+    html += `<h4>${esc(labels.love)}</h4><p>${esc(result.love)}</p>`;
+    html += `<h4>${esc(t('health'))}</h4><p>${esc(result.health)}</p>`;
     
     // Advice
-    html += `<h4>${t('advice')}</h4><ul>`;
+    html += `<h4>${esc(t('advice'))}</h4><ul>`;
     result.advice.forEach(a => {
-        html += `<li>${a}</li>`;
+        html += `<li>${esc(a)}</li>`;
     });
     html += `</ul>`;
     
@@ -1315,7 +1329,12 @@ function addChatMessage(text, sender) {
     msgDiv.className = `chat-message ${sender}`;
     
     const senderName = sender === 'user' ? t('you') : t('master_name');
-    msgDiv.innerHTML = `<div class="sender">${senderName}</div><div>${text}</div>`;
+    const senderDiv = document.createElement('div');
+    senderDiv.className = 'sender';
+    senderDiv.textContent = senderName;
+    const textDiv = document.createElement('div');
+    textDiv.textContent = text;
+    msgDiv.append(senderDiv, textDiv);
     
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
